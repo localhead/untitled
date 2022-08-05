@@ -127,3 +127,50 @@ btnScroll.addEventListener('click', function (btnThatClicked) {
   // Modern Approach of doing the same thing (works only on new browsers)
   sectionToScrool.scrollIntoView({ behavior: 'smooth' });
 });
+/* 
+
+
+*/
+// Smooth scrolling while clicking nav buttons
+
+// This a first approach. However it is not efficient.
+// Cuz it actually makes coppies of eventHandlers for each link
+// Might cause bad performance if there will be a lot of ellemnts
+/* 
+document.querySelectorAll('.nav__link').forEach(function (elem) {
+  elem.addEventListener('click', function (event) {
+    // Removing default scrolling caused by anchors
+    event.preventDefault();
+    // We need the link form nav__link
+    const id = this.getAttribute('href'); //#section--1,2,3
+    console.log('Link');
+    document.querySelector(id).scrollIntoView({ behavior: 'smooth' });
+  });
+}); 
+*/
+
+// here is the second approach for smmoth nav buttons scrolling
+// We will use an event delegation
+// We will try to detect and catch the event we need in parent element.
+// Yes I hope U know that event in child will also appear in
+// parents ellements as well
+
+// sooo, LETS TRY EVENT DELEGATION
+// 1) Add event listener to parent element
+// 2) Detect which element originated the event
+
+document
+  .querySelector('.nav__links')
+  .addEventListener('click', function (event) {
+    console.log(event.target); // <a class="nav__link" href="#section--1">Features</a>
+    // Removing default scrolling caused by anchors
+    event.preventDefault();
+    // lets work only with child elements. Not the parent
+    if (event.target.classList.contains('nav__link')) {
+      console.log('Yeah');
+      // We need the link form nav__link
+      const id = event.target.getAttribute('href'); //#section--1,2,3
+      console.log('Link');
+      document.querySelector(id).scrollIntoView({ behavior: 'smooth' });
+    }
+  });
