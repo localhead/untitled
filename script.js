@@ -162,15 +162,222 @@ document.querySelectorAll('.nav__link').forEach(function (elem) {
 document
   .querySelector('.nav__links')
   .addEventListener('click', function (event) {
-    console.log(event.target); // <a class="nav__link" href="#section--1">Features</a>
+    //console.log(event.target); // <a class="nav__link" href="#section--1">Features</a>
     // Removing default scrolling caused by anchors
     event.preventDefault();
     // lets work only with child elements. Not the parent
     if (event.target.classList.contains('nav__link')) {
-      console.log('Yeah');
       // We need the link form nav__link
       const id = event.target.getAttribute('href'); //#section--1,2,3
-      console.log('Link');
       document.querySelector(id).scrollIntoView({ behavior: 'smooth' });
     }
   });
+/* 
+
+
+
+*/
+// Tabbed component in operations
+const tabs = document.querySelectorAll('.operations__tab');
+const tabsContainer = document.querySelector('.operations__tab-container');
+const tabsContent = document.querySelectorAll('.operations__content');
+
+// Using event delegation to reach each tab
+tabsContainer.addEventListener('click', function (event) {
+  // Choosing parent elem so every click will be on whole element
+  // but not child elements inside.
+  // To do that we use closest,
+  // which will refer on next closest parent/child element
+  const clickedElem = event.target.closest('.operations__tab');
+  console.log(clickedElem);
+  // <button class="btn operations__tab operations__tab--2 operations__tab--active" data-tab="2"> <span>02</span>Instant Loans</button>
+  // And we also have to get rid of clicking on parent element
+  // If we clicked on parent element - this event handler will return null.
+  // and we stop the execution
+  if (clickedElem === null) return;
+
+  // removing class on all tabs
+  tabs.forEach(function (tab) {
+    tab.classList.remove('operations__tab--active');
+  });
+  // adding shift on active tab
+  clickedElem.classList.add('operations__tab--active');
+
+  // removing all content before showing appropriate
+  tabsContent.forEach(function (elem) {
+    elem.classList.remove('operations__content--active');
+  });
+
+  // adding appropriate content to tab number
+  console.log(clickedElem.dataset);
+  console.log(clickedElem.dataset.tab); // 1,2,3
+  document
+    .querySelector(`.operations__content--${clickedElem.dataset.tab}`)
+    .classList.add('operations__content--active');
+});
+/* 
+
+
+*/
+// Menu fade animation while hovering
+const nav = document.querySelector('.nav');
+const handleHover = function (event, opacity) {
+  if (event.target.classList.contains('nav__link')) {
+    // link which is covered by mouse
+    const link = event.target;
+    console.log(link); // <a class="nav__link" href="#section--2">Operations</a>
+    // rest of the links which are not covered by mouse
+    const siblings = link.closest('.nav').querySelectorAll('.nav__link');
+    // logo itself
+    const logo = link.closest('.nav').querySelector('img');
+
+    const button = link.closest('.nav').querySelector('.nav__link--btn');
+
+    siblings.forEach(function (elem) {
+      if (elem !== link) elem.style.opacity = opacity;
+    });
+    logo.style.opacity = opacity == 1 ? 1 : 0.7;
+  }
+};
+
+// changing opacity while covering
+nav.addEventListener('mouseover', function (event) {
+  handleHover(event, 0.4);
+});
+// bind ussage. same as above. but with bind
+nav.addEventListener('mouseout', function (event) {
+  handleHover(event, 1);
+});
+/* 
+
+
+
+*/
+/* 
+// Sticky navigation while scrolling using Scroll Event
+// (not the best way of making sticky navigation)
+
+// Saving a class where we will add new class to
+const navToAddClass = document.querySelector('.nav');
+// Saving a place from where we will add that class
+const navTopAttach = document.querySelector('#section--1');
+// Saving a coordinats of that place
+const navTopAttachCoords = navTopAttach.getBoundingClientRect();
+console.log(navTopAttach.getBoundingClientRect());
+
+// Scroll event is bad for performance because its triggers all the time
+window.addEventListener('scroll', function () {
+  //console.log(this.window.scrollY);
+  // Adding new class if user scrooled to section--1
+  if (this.window.scrollY > navTopAttachCoords.top) {
+    console.log(navTopAttachCoords.top);
+    navToAddClass.classList.add('sticky');
+  } else navToAddClass.classList.remove('sticky');
+});
+*/
+/* 
+
+
+
+*/
+// Sticky Navigation but with using Intersection Observer API
+// some theory here. Uncomment and watch logs
+/* 
+const observerCallback = function (entries, observer) {
+  entries.forEach(function (entry) {
+    console.log(entry);
+  });
+};
+
+const observerOptions = {
+  // element which we want to intersect
+  root: null,
+  threshold: 0.1,
+};
+
+const observer = new IntersectionObserver(observerCallback, observerOptions);
+
+// observing a certain target
+observer.observe(sectionToScrool); 
+
+// End of Intersection Observer API theory. Now lets use it in practice
+//
+//
+*/
+// what we want to show
+const navToAddClass = document.querySelector('.nav');
+// where we want to show
+const header = document.querySelector('.header');
+// getting exat margin from where we want to show
+const navHeight = navToAddClass.getBoundingClientRect().height;
+
+// conditions in which our function will trigger
+const obsOptions = {
+  // dont really know why we use null here
+  root: null,
+  // we want nav to show up when generic nav is out of viewport
+  threshold: 0,
+  // we make nav bar appear a bit earlier before section
+  // but its better to calculate it dynamicly in order to have a good
+  // responsive design. (hardcoding 90px is not always a good idea)
+  // rootMargin: '-90px',
+  rootMargin: `-${navHeight}px`,
+};
+
+// fucntion which will trigger
+const obsCallback = function (entries, observer) {
+  const [entry] = entries;
+  console.log(entry);
+
+  if (!entry.isIntersecting) navToAddClass.classList.add('sticky');
+  else navToAddClass.classList.remove('sticky');
+};
+
+// Observer function which will trigger everything
+const headerObserver = new IntersectionObserver(obsCallback, obsOptions);
+// paste into the argument place where you need event to be triggered
+headerObserver.observe(header);
+/* 
+
+
+
+
+
+*/
+// Smooth Revealing sections while scrolling down
+
+// where to reveal sections?
+const allSections = document.querySelectorAll('.section');
+
+// options for observimg
+const revealSectionOptions = {
+  root: null,
+  threshold: 0.15,
+};
+
+// the fucntion which will reveal pages
+const revealSection = function (entries, observer) {
+  const [entry] = entries;
+  console.log(entry);
+
+  // if section is not intersectin - do nothing
+  if (!entry.isIntersecting) return;
+  // if it does remove class
+  else entry.target.classList.remove('section--hidden');
+  // onse we observe the section - we removed the class from it
+  // after that - we should stop observing it
+  observer.unobserve(entry.target);
+};
+
+// the main observer trigger with options and function
+const sectionObserver = new IntersectionObserver(
+  revealSection,
+  revealSectionOptions
+);
+
+// cuz we have several section and not one, we have to observe on all of them
+// with looping over and placing and observe method on each of them
+allSections.forEach(function (section) {
+  section.classList.add('section--hidden');
+  sectionObserver.observe(section);
+});
