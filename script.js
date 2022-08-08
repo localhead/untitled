@@ -327,7 +327,7 @@ const obsOptions = {
 // fucntion which will trigger
 const obsCallback = function (entries, observer) {
   const [entry] = entries;
-  console.log(entry);
+  //console.log(entry);
 
   if (!entry.isIntersecting) navToAddClass.classList.add('sticky');
   else navToAddClass.classList.remove('sticky');
@@ -345,6 +345,7 @@ headerObserver.observe(header);
 
 */
 // Smooth Revealing sections while scrolling down
+// To do that I use Intersection Observer API again
 
 // where to reveal sections?
 const allSections = document.querySelectorAll('.section');
@@ -355,10 +356,10 @@ const revealSectionOptions = {
   threshold: 0.15,
 };
 
-// the fucntion which will reveal pages
+// the function which will reveal pages
 const revealSection = function (entries, observer) {
   const [entry] = entries;
-  console.log(entry);
+  //console.log(entry);
 
   // if section is not intersectin - do nothing
   if (!entry.isIntersecting) return;
@@ -380,4 +381,51 @@ const sectionObserver = new IntersectionObserver(
 allSections.forEach(function (section) {
   section.classList.add('section--hidden');
   sectionObserver.observe(section);
+});
+/* 
+
+
+
+
+*/
+// Lazy loading Images Feature
+// To do that I use Intersection Observer API again
+
+// where to reveal sections?
+// selecting only these imgs that has data-src attribute
+const imgTargets = document.querySelectorAll('img[data-src]');
+
+const revealImgOpt = {
+  root: null,
+  threshold: 0,
+  // lets load lazy img sooner
+  rootMargin: '200px',
+};
+
+const revealImgFunc = function (images, observer) {
+  const [img] = images;
+  console.log(img);
+
+  // guard close. Means - do smt if only intersecting
+  if (!img.isIntersecting) return;
+
+  // replace src with data-src
+  // src is low res img. And we need to change it with HiRes img
+  // which is located in data-src="img/card.jpg" attribute in html
+  img.target.src = img.target.dataset.src;
+
+  // Now its time to remove blur filter.
+  // However we do not want to remove it immideatly
+  // because we do not want want to show blured image if it needs some time to load
+  // thats why we have to listen to the 'load' event to be done when HiRes img loads completely
+  img.target.addEventListener('load', function () {
+    img.target.classList.remove('lazy-img');
+  });
+  observer.unobserve(img.target);
+};
+
+const imgObserver = new IntersectionObserver(revealImgFunc, revealImgOpt);
+
+imgTargets.forEach(function (img) {
+  imgObserver.observe(img);
 });
