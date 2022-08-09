@@ -379,7 +379,7 @@ const sectionObserver = new IntersectionObserver(
 // cuz we have several section and not one, we have to observe on all of them
 // with looping over and placing and observe method on each of them
 allSections.forEach(function (section) {
-  //section.classList.add('section--hidden');
+  section.classList.add('section--hidden');
   sectionObserver.observe(section);
 });
 /* 
@@ -446,6 +446,7 @@ const allSlides = document.querySelector('.slider');
 // selecting slider btns
 const btnSliderLeft = document.querySelector('.slider__btn--left');
 const btnSliderRight = document.querySelector('.slider__btn--right');
+const dotsContainer = document.querySelector('.dots');
 // flag for current slide
 let currentSlide = 0;
 // how many slides?
@@ -468,7 +469,7 @@ slides.forEach(function (item, index) {
 // Going to the next slide
 // we want changes to be like this after clicking right btn
 // -100%, 0%, 100%, 200% etc
-btnSliderRight.addEventListener('click', function () {
+const moveRight = function () {
   if (currentSlide == SlidesQuantity - 1) {
     currentSlide = 0;
   } else {
@@ -477,12 +478,12 @@ btnSliderRight.addEventListener('click', function () {
   slides.forEach(function (item, index) {
     item.style.transform = `translate(${100 * (index - currentSlide)}%)`;
   });
-});
-
+  changeDotsColor(currentSlide);
+};
 // Going to the previous slide
 // we want changes to be like this after clicking right btn
 // 100%, 200%, 300%, 400% etc
-btnSliderLeft.addEventListener('click', function () {
+const moveLeft = function () {
   if (currentSlide == 0) {
     currentSlide = SlidesQuantity - 1;
   } else {
@@ -491,4 +492,59 @@ btnSliderLeft.addEventListener('click', function () {
   slides.forEach(function (item, index) {
     item.style.transform = `translate(${100 * (index - currentSlide)}%)`;
   });
+  changeDotsColor(currentSlide);
+};
+
+btnSliderRight.addEventListener('click', moveRight);
+
+btnSliderLeft.addEventListener('click', moveLeft);
+
+// Using arrow keys to move right/left
+document.addEventListener('keydown', function (event) {
+  if (event.key === 'ArrowLeft') {
+    moveLeft();
+  }
+  if (event.key === 'ArrowRight') {
+    moveRight();
+  }
+});
+
+// Creating dots in html
+const createDots = function () {
+  // We will have dots as musch as slides. So lets loop over slides
+  slides.forEach(function (_, index) {
+    dotsContainer.insertAdjacentHTML(
+      'beforeend',
+      `<button class ="dots__dot" data-slide="${index}" ></button>`
+    );
+  });
+};
+// Trigger fn to show dots from the start
+createDots();
+
+const changeDotsColor = function (currentSlide) {
+  // remove active color from all the dots
+  document.querySelectorAll('.dots__dot').forEach(function (dot) {
+    dot.classList.remove('dots__dot--active');
+  });
+  // finding the dot that has the current slide
+  document
+    .querySelector(`.dots__dot[data-slide="${currentSlide}"]`)
+    .classList.add('dots__dot--active');
+};
+// trigger this function from the start in order
+// the current slide to be active from the begining
+changeDotsColor(0);
+
+dotsContainer.addEventListener('click', function (event) {
+  if (event.target.classList.contains('dots__dot')) {
+    // checking on what slide we are
+    const slideInd = event.target.dataset.slide;
+    currentSlide = slideInd;
+    // moving to appropriate slide
+    slides.forEach(function (item, index) {
+      item.style.transform = `translate(${100 * (index - slideInd)}%)`;
+    });
+    changeDotsColor(slideInd);
+  }
 });
