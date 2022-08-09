@@ -353,7 +353,7 @@ const allSections = document.querySelectorAll('.section');
 // options for observimg
 const revealSectionOptions = {
   root: null,
-  threshold: 0.15,
+  threshold: 0.1,
 };
 
 // the function which will reveal pages
@@ -379,7 +379,7 @@ const sectionObserver = new IntersectionObserver(
 // cuz we have several section and not one, we have to observe on all of them
 // with looping over and placing and observe method on each of them
 allSections.forEach(function (section) {
-  section.classList.add('section--hidden');
+  //section.classList.add('section--hidden');
   sectionObserver.observe(section);
 });
 /* 
@@ -404,7 +404,7 @@ const revealImgOpt = {
 
 const revealImgFunc = function (images, observer) {
   const [img] = images;
-  console.log(img);
+  //console.log(img);
 
   // guard close. Means - do smt if only intersecting
   if (!img.isIntersecting) return;
@@ -428,4 +428,67 @@ const imgObserver = new IntersectionObserver(revealImgFunc, revealImgOpt);
 
 imgTargets.forEach(function (img) {
   imgObserver.observe(img);
+});
+/* 
+
+
+
+
+
+
+*/
+// Making Slider Component
+// Selecting all the sliders
+const slides = document.querySelectorAll('.slide');
+// And the parant element of sliders
+const allSlides = document.querySelector('.slider');
+
+// selecting slider btns
+const btnSliderLeft = document.querySelector('.slider__btn--left');
+const btnSliderRight = document.querySelector('.slider__btn--right');
+// flag for current slide
+let currentSlide = 0;
+// how many slides?
+const SlidesQuantity = slides.length;
+// some transformation in order to make things visible.
+// Not nessesary for slider functionality
+//allSlides.style.transform = 'scale(0.8) translateX(-1000px)';
+// overflow is hidden in css so lets make it visible
+//allSlides.style.overflow = 'visible';
+
+// transforming each slide by moving them to the right
+slides.forEach(function (item, index) {
+  item.style.transform = `translate(${100 * index}%)`;
+});
+// So at the begining all slides will will have the following properties
+// 0%, 100%, 200%, etc
+
+// Adding event on right/left btns
+//
+// Going to the next slide
+// we want changes to be like this after clicking right btn
+// -100%, 0%, 100%, 200% etc
+btnSliderRight.addEventListener('click', function () {
+  if (currentSlide == SlidesQuantity - 1) {
+    currentSlide = 0;
+  } else {
+    currentSlide++;
+  }
+  slides.forEach(function (item, index) {
+    item.style.transform = `translate(${100 * (index - currentSlide)}%)`;
+  });
+});
+
+// Going to the previous slide
+// we want changes to be like this after clicking right btn
+// 100%, 200%, 300%, 400% etc
+btnSliderLeft.addEventListener('click', function () {
+  if (currentSlide == 0) {
+    currentSlide = SlidesQuantity - 1;
+  } else {
+    currentSlide--;
+  }
+  slides.forEach(function (item, index) {
+    item.style.transform = `translate(${100 * (index - currentSlide)}%)`;
+  });
 });
