@@ -548,3 +548,11 @@ dotsContainer.addEventListener('click', function (event) {
     changeDotsColor(slideInd);
   }
 });
+
+// Close site?
+// Возможно, внесенные изменения не сохранятся.
+window.addEventListener('beforeunload', function (event) {
+  event.preventDefault();
+  console.log('Are you sure?', event);
+  event.returnValue = '';
+});
